@@ -13,14 +13,12 @@
   #tapArea { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:12px; cursor:pointer; touch-action:manipulation; }
   .hint { color:var(--muted); font-size:clamp(14px,3.8vw,18px); letter-spacing:.04em; }
   #count { font-size:clamp(100px,25vw,190px); line-height:1; font-weight:750; letter-spacing:-.06em; font-variant-numeric:tabular-nums; }
-  .topbar { position:fixed; z-index:5; top:0; left:0; right:0; display:flex; align-items:center; justify-content:space-between; padding: max(16px, env(safe-area-inset-top)) 18px 12px; pointer-events:none; }
-  .brand { font-weight:750; font-size:19px; letter-spacing:-.03em; pointer-events:none; }
-  #menuButton { pointer-events:auto; border:1px solid #374151; background:#1f2937; color:#f9fafb; width:46px; height:46px; border-radius:14px; font-size:24px; cursor:pointer; display:grid; place-items:center; }
-  #menu { position:fixed; z-index:10; top:calc(max(16px, env(safe-area-inset-top)) + 54px); right:16px; width:190px; padding:8px; border:1px solid #374151; border-radius:16px; background:#1f2937; box-shadow:0 16px 40px #0006; display:none; }
-  #menu.open { display:block; }
-  .menuAction { width:100%; padding:13px 12px; border:0; border-radius:10px; color:#f9fafb; background:transparent; font:inherit; text-align:left; cursor:pointer; }
-  .menuAction:active { background:#374151; }
-  .menuAction span { display:inline-block; width:27px; color:var(--accent); font-weight:700; }
+  .topbar { position:fixed; z-index:5; top:0; left:0; right:0; display:flex; align-items:center; justify-content:space-between; gap:10px; padding: max(12px, env(safe-area-inset-top)) 14px 12px; }
+  .brand { font-weight:750; font-size:18px; letter-spacing:-.03em; }
+  .topActions { display:flex; align-items:center; gap:8px; }
+  .topAction { border:1px solid #374151; background:#1f2937; color:#f9fafb; padding:9px 12px; border-radius:11px; font:600 13px system-ui,sans-serif; cursor:pointer; min-height:40px; }
+  .topAction:active { background:#374151; }
+  .topAction .symbol { color:var(--accent); font-size:16px; margin-right:4px; }
   #message { min-height:20px; color:var(--muted); font-size:13px; }
   @media (prefers-reduced-motion:no-preference) { #count { transition:transform .08s ease; } #count.bump { transform:scale(1.04); } }
 </style>
@@ -33,19 +31,16 @@
   </main>
   <header class="topbar">
     <div class="brand">Counton</div>
-    <button id="menuButton" type="button" aria-label="Open menu" aria-expanded="false">⋮</button>
+    <div class="topActions">
+      <button class="topAction" id="decrement" type="button"><span class="symbol">−</span>Decrement</button>
+      <button class="topAction" id="reset" type="button"><span class="symbol">↺</span>Reset</button>
+    </div>
   </header>
-  <nav id="menu" aria-label="Counter menu">
-    <button class="menuAction" id="decrement" type="button"><span>−</span> Decrement</button>
-    <button class="menuAction" id="reset" type="button"><span>↺</span> Reset</button>
-  </nav>
 <script>
 (() => {
   let count = 0;
   const countEl = document.getElementById('count');
   const tapArea = document.getElementById('tapArea');
-  const menu = document.getElementById('menu');
-  const menuButton = document.getElementById('menuButton');
   const message = document.getElementById('message');
   function render() {
     countEl.textContent = count.toLocaleString();
@@ -53,40 +48,24 @@
     void countEl.offsetWidth;
     countEl.classList.add('bump');
   }
-  function closeMenu() {
-    menu.classList.remove('open');
-    menuButton.setAttribute('aria-expanded', 'false');
-  }
   tapArea.addEventListener('click', () => {
     count += 1;
     message.textContent = '';
     render();
-  });
-  menuButton.addEventListener('click', (event) => {
-    event.stopPropagation();
-    const open = menu.classList.toggle('open');
-    menuButton.setAttribute('aria-expanded', String(open));
   });
   document.getElementById('decrement').addEventListener('click', (event) => {
     event.stopPropagation();
     count = Math.max(0, count - 1);
     message.textContent = count === 0 ? 'Count cannot go below 0' : '';
     render();
-    closeMenu();
   });
   document.getElementById('reset').addEventListener('click', (event) => {
     event.stopPropagation();
     count = 0;
     message.textContent = 'Counter reset';
     render();
-    closeMenu();
   });
-  document.addEventListener('click', (event) => {
-    if (!menu.contains(event.target) && event.target !== menuButton) closeMenu();
-  });
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') closeMenu();
-    if (event.key === ' ' || event.key === 'Enter') {
+  document.addEventListener('keydown', (event) => {    if (event.key === ' ' || event.key === 'Enter') {
       if (document.activeElement === document.body) { event.preventDefault(); count += 1; render(); }
     }
   });
