@@ -51,7 +51,7 @@
   }
   function vibratePhone() {
     if (typeof navigator.vibrate !== 'function') return false;
-    return navigator.vibrate([500, 150, 500]);
+    return navigator.vibrate([500, 200, 500, 200, 500]);
   }
 
   document.getElementById('testVibration').addEventListener('click', (event) => {
