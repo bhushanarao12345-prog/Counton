@@ -52,6 +52,15 @@
     count += 1;
     message.textContent = '';
     render();
+
+    if (count === 110) {
+      if (typeof navigator.vibrate === 'function') {
+        navigator.vibrate([300, 100, 300]);
+        message.textContent = '110 reached!';
+      } else {
+        message.textContent = '110 reached! Vibration is not supported by this browser.';
+      }
+    }
   });
   document.getElementById('decrement').addEventListener('click', (event) => {
     event.stopPropagation();
