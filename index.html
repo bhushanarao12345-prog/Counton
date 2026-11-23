@@ -32,6 +32,7 @@
   <header class="topbar">
     <div class="brand">Counton</div>
     <div class="topActions">
+      <button class="topAction" id="testVibration" type="button">Test vibration</button>
       <button class="topAction" id="decrement" type="button"><span class="symbol">−</span>Decrement</button>
       <button class="topAction" id="reset" type="button"><span class="symbol">↺</span>Reset</button>
     </div>
@@ -48,18 +49,28 @@
     void countEl.offsetWidth;
     countEl.classList.add('bump');
   }
+  function vibratePhone() {
+    if (typeof navigator.vibrate !== 'function') return false;
+    return navigator.vibrate([500, 150, 500]);
+  }
+
+  document.getElementById('testVibration').addEventListener('click', (event) => {
+    event.stopPropagation();
+    const supported = vibratePhone();
+    message.textContent = supported
+      ? 'Vibration test sent. If you feel nothing, check phone vibration settings or try Chrome.'
+      : 'This browser does not support vibration. Open Counton in Chrome on Android.';
+  });
   tapArea.addEventListener('click', () => {
     count += 1;
     message.textContent = '';
     render();
 
     if (count === 110) {
-      if (typeof navigator.vibrate === 'function') {
-        navigator.vibrate([300, 100, 300]);
-        message.textContent = '110 reached!';
-      } else {
-        message.textContent = '110 reached! Vibration is not supported by this browser.';
-      }
+      const supported = vibratePhone();
+      message.textContent = supported
+        ? '110 reached! Vibration alert sent.'
+        : '110 reached! This browser does not support vibration. Try Chrome on Android.';
     }
   });
   document.getElementById('decrement').addEventListener('click', (event) => {
