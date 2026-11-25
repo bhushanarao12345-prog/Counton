@@ -15,7 +15,11 @@
   #count { font-size:clamp(100px,25vw,190px); line-height:1; font-weight:750; letter-spacing:-.06em; font-variant-numeric:tabular-nums; }
   .topbar { position:fixed; z-index:5; top:0; left:0; right:0; display:flex; align-items:center; justify-content:space-between; gap:10px; padding: max(12px, env(safe-area-inset-top)) 14px 12px; }
   .brand { font-weight:750; font-size:18px; letter-spacing:-.03em; }
-  .topActions { display:flex; align-items:center; gap:8px; }
+  .topActions { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:8px; }
+  .targetControls { display:flex; align-items:center; gap:6px; border:1px solid #222222; border-radius:11px; padding:4px 6px 4px 10px; background:#000000; }
+  .targetControls label { color:var(--muted); font-size:12px; white-space:nowrap; }
+  #vibrationTarget { width:68px; min-width:0; border:1px solid #333; border-radius:7px; padding:7px 5px; background:#111; color:#fff; font:600 14px system-ui,sans-serif; }
+  @media (max-width:520px) { .topbar { align-items:flex-start; } .topActions { max-width:78%; } .targetControls { order:-1; } }
   .topAction { border:1px solid #222222; background:#000000; color:#f9fafb; padding:9px 12px; border-radius:11px; font:600 13px system-ui,sans-serif; cursor:pointer; min-height:40px; }
   .topAction:active { background:#181818; }
   .topAction .symbol { color:var(--accent); font-size:16px; margin-right:4px; }
@@ -32,6 +36,7 @@
   <header class="topbar">
     <div class="brand">Counton</div>
     <div class="topActions">
+      <div class="targetControls"><label for="vibrationTarget">Vibrate at</label><input id="vibrationTarget" type="number" min="1" step="1" inputmode="numeric" value="110" aria-label="Vibration target count"></div>
       <button class="topAction" id="testVibration" type="button">Test vibration</button>
       <button class="topAction" id="decrement" type="button"><span class="symbol">−</span>Decrement</button>
       <button class="topAction" id="reset" type="button"><span class="symbol">↺</span>Reset</button>
@@ -40,6 +45,10 @@
 <script>
 (() => {
   let count = 0;
+  const targetInput = document.getElementById('vibrationTarget');
+  const savedTarget = Number(localStorage.getItem('countonVibrationTarget'));
+  if (Number.isSafeInteger(savedTarget) && savedTarget > 0) targetInput.value = String(savedTarget);
+  let vibrationTarget = Number(targetInput.value);
   const countEl = document.getElementById('count');
   const tapArea = document.getElementById('tapArea');
   const message = document.getElementById('message');
@@ -54,6 +63,18 @@
     return navigator.vibrate([500, 200, 500, 200, 500]);
   }
 
+  targetInput.addEventListener('change', () => {
+    const nextTarget = Number(targetInput.value);
+    if (!Number.isSafeInteger(nextTarget) || nextTarget < 1) {
+      targetInput.value = String(vibrationTarget);
+      message.textContent = 'Enter a whole number greater than 0.';
+      return;
+    }
+    vibrationTarget = nextTarget;
+    localStorage.setItem('countonVibrationTarget', String(vibrationTarget));
+    message.textContent = `Vibration target set to ${vibrationTarget}.`;
+  });
+
   document.getElementById('testVibration').addEventListener('click', (event) => {
     event.stopPropagation();
     const supported = vibratePhone();
@@ -66,11 +87,11 @@
     message.textContent = '';
     render();
 
-    if (count === 110) {
+    if (count === vibrationTarget) {
       const supported = vibratePhone();
       message.textContent = supported
-        ? '110 reached! Vibration alert sent.'
-        : '110 reached! This browser does not support vibration. Try Chrome on Android.';
+        ? `${vibrationTarget} reached! Vibration alert sent.`
+        : `${vibrationTarget} reached! This browser does not support vibration. Try Chrome on Android.`;
     }
   });
   document.getElementById('decrement').addEventListener('click', (event) => {
