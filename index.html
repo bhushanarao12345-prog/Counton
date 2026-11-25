@@ -36,7 +36,7 @@
   <header class="topbar">
     <div class="brand">Counton</div>
     <div class="topActions">
-      <div class="targetControls"><label for="vibrationTarget">Vibrate at</label><input id="vibrationTarget" type="number" min="1" step="1" inputmode="numeric" value="110" aria-label="Vibration target count"><button class="topAction" id="applyVibrationTarget" type="button" aria-label="Confirm vibration target" title="Confirm target">✓</button></div>
+      <div class="targetControls"><label>Vibrate at <strong id="activeTargetDisplay">110</strong></label><input id="vibrationTarget" type="number" min="1" step="1" inputmode="numeric" placeholder="New number" aria-label="Enter a new vibration target"><button class="topAction" id="applyVibrationTarget" type="button" aria-label="Confirm vibration target" title="Confirm target">✓</button></div>
       <button class="topAction" id="testVibration" type="button">Test vibration</button>
       <button class="topAction" id="decrement" type="button"><span class="symbol">−</span>Decrement</button>
       <button class="topAction" id="reset" type="button"><span class="symbol">↺</span>Reset</button>
@@ -47,8 +47,8 @@
   let count = 0;
   const targetInput = document.getElementById('vibrationTarget');
   const savedTarget = Number(localStorage.getItem('countonVibrationTarget'));
-  if (Number.isSafeInteger(savedTarget) && savedTarget > 0) targetInput.value = String(savedTarget);
-  let vibrationTarget = Number(targetInput.value);
+  let vibrationTarget = Number.isSafeInteger(savedTarget) && savedTarget > 0 ? savedTarget : 110;
+  document.getElementById('activeTargetDisplay').textContent = String(vibrationTarget);
   const countEl = document.getElementById('count');
   const tapArea = document.getElementById('tapArea');
   const message = document.getElementById('message');
@@ -66,15 +66,15 @@
   document.getElementById('applyVibrationTarget').addEventListener('click', (event) => {
     event.stopPropagation();
     const nextTarget = Number(targetInput.value);
-    if (!Number.isSafeInteger(nextTarget) || nextTarget < 1) {
+    if (targetInput.value.trim() === '' || !Number.isSafeInteger(nextTarget) || nextTarget < 1) {
       message.textContent = 'Enter a whole number greater than 0, then tap ✓.';
-      targetInput.value = String(vibrationTarget);
       return;
     }
     vibrationTarget = nextTarget;
-    targetInput.value = String(vibrationTarget);
+    document.getElementById('activeTargetDisplay').textContent = String(vibrationTarget);
+    targetInput.value = '';
     localStorage.setItem('countonVibrationTarget', String(vibrationTarget));
-    message.textContent = `Vibration target confirmed: ${vibrationTarget}.`;
+    message.textContent = `Confirmed! Vibration will happen at ${vibrationTarget}.`;
   });
 
   document.getElementById('testVibration').addEventListener('click', (event) => {
