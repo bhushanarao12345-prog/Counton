@@ -36,7 +36,7 @@
   <header class="topbar">
     <div class="brand">Counton</div>
     <div class="topActions">
-      <div class="targetControls"><label for="vibrationTarget">Vibrate at</label><input id="vibrationTarget" type="number" min="1" step="1" inputmode="numeric" value="110" aria-label="Vibration target count"></div>
+      <div class="targetControls"><label for="vibrationTarget">Vibrate at</label><input id="vibrationTarget" type="number" min="1" step="1" inputmode="numeric" value="110" aria-label="Vibration target count"><button class="topAction" id="applyVibrationTarget" type="button" aria-label="Confirm vibration target" title="Confirm target">✓</button></div>
       <button class="topAction" id="testVibration" type="button">Test vibration</button>
       <button class="topAction" id="decrement" type="button"><span class="symbol">−</span>Decrement</button>
       <button class="topAction" id="reset" type="button"><span class="symbol">↺</span>Reset</button>
@@ -63,16 +63,18 @@
     return navigator.vibrate([500, 200, 500]);
   }
 
-  targetInput.addEventListener('change', () => {
+  document.getElementById('applyVibrationTarget').addEventListener('click', (event) => {
+    event.stopPropagation();
     const nextTarget = Number(targetInput.value);
     if (!Number.isSafeInteger(nextTarget) || nextTarget < 1) {
+      message.textContent = 'Enter a whole number greater than 0, then tap ✓.';
       targetInput.value = String(vibrationTarget);
-      message.textContent = 'Enter a whole number greater than 0.';
       return;
     }
     vibrationTarget = nextTarget;
+    targetInput.value = String(vibrationTarget);
     localStorage.setItem('countonVibrationTarget', String(vibrationTarget));
-    message.textContent = `Vibration target set to ${vibrationTarget}.`;
+    message.textContent = `Vibration target confirmed: ${vibrationTarget}.`;
   });
 
   document.getElementById('testVibration').addEventListener('click', (event) => {
