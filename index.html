@@ -60,7 +60,7 @@
   }
   function vibratePhone() {
     if (typeof navigator.vibrate !== 'function') return false;
-    return navigator.vibrate([500, 200, 500, 200, 500]);
+    return navigator.vibrate([500, 200, 500]);
   }
 
   targetInput.addEventListener('change', () => {
